@@ -82,4 +82,3 @@ func TestCopyBudgetStopsGrowingInput(t *testing.T) {
 		t.Fatalf("limit not enforced: n=%d data=%q err=%v", n, out.String(), err)
 	}
 }
-
