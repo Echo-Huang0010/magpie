@@ -128,15 +128,18 @@ func snapshotCursorStore(path string, open func(string, string) (*sql.DB, error)
 		return nil, "", err
 	}
 	copied := filepath.Join(tmp, "store.db")
+	remaining := cursorCopyLimit
 	for _, side := range []string{"", "-wal"} {
 		if cloneFile(path+side, copied+side) == nil {
 			continue
 		}
 		os.Remove(copied + side)
-		if err := copyFile(path+side, copied+side); err != nil {
+		n, err := copyCursorFile(path+side, copied+side, remaining)
+		if err != nil {
 			os.RemoveAll(tmp)
 			return nil, "", err
 		}
+		remaining -= n
 	}
 	cursorCopies.Add(1)
 	db, err := open(copied, "_pragma=busy_timeout(3000)")
